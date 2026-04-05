@@ -22,6 +22,7 @@ export default function RootLayout({
       {/* We apply 'dark' class here by default to enforce the desired premium dark mode aesthetic */}
       <body
         className={`${inter.variable} font-sans antialiased`}
+        suppressHydrationWarning
       >
         {children}
       </body>

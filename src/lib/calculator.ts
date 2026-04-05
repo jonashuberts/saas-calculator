@@ -4,6 +4,12 @@ export interface CostInput {
   selfHostedMonthly: number;
   setupCost: number;
   quitDate: Date | null;
+  hasSelfHostedCost?: boolean;
+}
+
+export interface SubscriptionInput extends CostInput {
+  id: string;
+  name: string;
 }
 
 export interface ProjectionData {
@@ -18,7 +24,11 @@ export function calculateProjections(
   input: CostInput,
   monthsToProject: number = 60
 ): ProjectionData[] {
-  const { saasPerUser, users, selfHostedMonthly, setupCost } = input;
+  const { saasPerUser, users, quitDate } = input;
+  const hasSelfHostedCost = input.hasSelfHostedCost !== false;
+  const selfHostedMonthly = hasSelfHostedCost ? input.selfHostedMonthly : 0;
+  const setupCost = hasSelfHostedCost ? input.setupCost : 0;
+  
   const saasMonthly = saasPerUser * users;
 
   const data: ProjectionData[] = [];
@@ -46,6 +56,49 @@ export function calculateProjections(
   return data;
 }
 
+export function calculateAggregatedProjections(
+  inputs: CostInput[],
+  monthsToProject: number = 60
+): ProjectionData[] {
+  if (inputs.length === 0) {
+    return calculateProjections({
+      saasPerUser: 0,
+      users: 0,
+      selfHostedMonthly: 0,
+      setupCost: 0,
+      quitDate: null,
+      hasSelfHostedCost: true,
+    }, monthsToProject);
+  }
+
+  const allProjections = inputs.map(input => calculateProjections(input, monthsToProject));
+  const aggregated: ProjectionData[] = [];
+
+  for (let m = 0; m <= monthsToProject; m++) {
+    let saasCumulative = 0;
+    let selfHostedCumulative = 0;
+
+    for (const proj of allProjections) {
+      saasCumulative += proj[m].saasCumulative;
+      selfHostedCumulative += proj[m].selfHostedCumulative;
+    }
+
+    const year = Math.floor(m / 12);
+    const monthRemainder = m % 12;
+    const label = m === 0 ? "Start" : monthRemainder === 0 ? `Year ${year}` : `M${m}`;
+
+    aggregated.push({
+      month: m,
+      label,
+      saasCumulative,
+      selfHostedCumulative,
+      savings: saasCumulative - selfHostedCumulative,
+    });
+  }
+
+  return aggregated;
+}
+
 export function calculatePastSavings(input: CostInput): number {
   if (!input.quitDate) return 0;
 
@@ -60,9 +113,17 @@ export function calculatePastSavings(input: CostInput): number {
 
   if (monthsDifference <= 0) return 0;
 
+  const hasSelfHostedCost = input.hasSelfHostedCost !== false;
+  const selfHostedMonthly = hasSelfHostedCost ? input.selfHostedMonthly : 0;
+  const setupCost = hasSelfHostedCost ? input.setupCost : 0;
+
   const saasMonthly = input.saasPerUser * input.users;
   const totalSaasCost = saasMonthly * monthsDifference;
-  const totalSelfHostedCost = input.setupCost + (input.selfHostedMonthly * monthsDifference);
+  const totalSelfHostedCost = setupCost + (selfHostedMonthly * monthsDifference);
 
   return Math.max(0, totalSaasCost - totalSelfHostedCost);
+}
+
+export function calculateTotalPastSavings(inputs: CostInput[]): number {
+  return inputs.reduce((total, input) => total + calculatePastSavings(input), 0);
 }

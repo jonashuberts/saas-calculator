@@ -1,163 +1,198 @@
 "use client";
 
-import { CostInput, ProjectionData } from "@/lib/calculator";
+import { ProjectionData, SubscriptionInput } from "@/lib/calculator";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TrendingUp, LineChart, Target, PiggyBank } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { motion } from "framer-motion";
+import { LineChart, BarChart as BarChartIcon, PieChart as PieChartIcon, ArrowUpRight, ArrowDownRight, Target } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, Cell, PieChart, Pie, Sector } from "recharts";
 
 interface SavingsVisualizationsProps {
   projections: ProjectionData[];
-  inputs: CostInput;
-  pastSavings: number;
+  subscriptions?: SubscriptionInput[];
+  currency: 'USD' | 'EUR';
 }
 
-export function SavingsVisualizations({ projections, inputs, pastSavings }: SavingsVisualizationsProps) {
+const COLORS = ['#10b981', '#6366f1', '#f43f5e', '#f59e0b', '#3b82f6', '#8b5cf6', '#14b8a6', '#f97316'];
+
+export function SavingsVisualizations({ projections, subscriptions = [], currency }: SavingsVisualizationsProps) {
   
   const year1 = projections[12] || projections[projections.length - 1];
   const year3 = projections[36] || projections[projections.length - 1];
   const year5 = projections[60] || projections[projections.length - 1];
 
+  const currencySymbol = currency === 'EUR' ? '€' : '$';
   const formatCurrency = (val: number) => 
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+    new Intl.NumberFormat(currency === 'EUR' ? 'de-DE' : 'en-US', { style: 'currency', currency: currency, maximumFractionDigits: 0 }).format(val);
+
+  // --- Insight: Break Even Month ---
+  const breakEvenProj = projections.find(p => p.savings > 0 && p.month > 0);
+  const totalSetupCost = projections[0]?.selfHostedCumulative || 0;
+
+  // --- Insight: Yearly Cash Flow ---
+  const yearlyFlow = [1, 2, 3, 4, 5].map(year => {
+    const monthIdx = year * 12;
+    const prevMonthIdx = (year - 1) * 12;
+    if (!projections[monthIdx] || !projections[prevMonthIdx]) return null;
+    const netFlow = projections[monthIdx].savings - projections[prevMonthIdx].savings;
+    return {
+      name: `Year ${year}`,
+      netFlow,
+    };
+  }).filter(Boolean) as {name: string, netFlow: number}[];
+
+  // --- Insight: Spend Distribution (Donut) ---
+  const spendData = subscriptions.map(sub => ({
+    name: sub.name,
+    value: sub.saasPerUser * sub.users,
+  })).filter(s => s.value > 0);
 
   return (
     <div className="space-y-6">
-      {/* Retrospective Savings highlight */}
-      {inputs.quitDate && pastSavings > 0 && (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-6 shadow-lg shadow-emerald-500/5"
-        >
-           <div className="flex items-center gap-4">
-             <div className="p-3 bg-emerald-500/20 rounded-full">
-               <PiggyBank className="w-8 h-8 text-emerald-500" />
+      
+      {/* Visual Insights Command Center */}
+      {(totalSetupCost > 0 || breakEvenProj) && (
+        <Card className="border-emerald-500/20 bg-emerald-500/[0.02] shadow-xl overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 rounded-l-lg"></div>
+          <CardContent className="p-6">
+             <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="p-4 bg-emerald-500/10 rounded-2xl shrink-0">
+                  <Target className="w-8 h-8 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-widest mb-1">Target Insight</h3>
+                  {breakEvenProj ? (
+                     <p className="text-xl md:text-2xl font-bold text-white">
+                        Your self-hosted investment completely pays for itself in <span className="text-emerald-400 underline decoration-emerald-400/30 underline-offset-4">{breakEvenProj.month} Months</span>.
+                     </p>
+                  ) : (
+                     <p className="text-xl md:text-2xl font-bold text-white">
+                        Given your high setup costs, it will take longer than 5 years to break even.
+                     </p>
+                  )}
+                  <p className="text-muted-foreground mt-2">Initial setup cost to recover: <span className="font-semibold text-white/80">{formatCurrency(totalSetupCost)}</span></p>
+                </div>
              </div>
-             <div>
-               <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Total Money Saved So Far!</p>
-               <p className="text-3xl font-black text-emerald-500 tracking-tight">
-                 {formatCurrency(pastSavings)}
-               </p>
-               <p className="text-xs text-muted-foreground mt-1">Since {new Date(inputs.quitDate).toLocaleDateString(undefined, { month: 'long', year: 'numeric'})}</p>
-             </div>
-           </div>
-        </motion.div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Main Charts area */}
-      <Card className="border-border/40 shadow-xl bg-card/50 backdrop-blur-xl">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <LineChart className="w-6 h-6 text-indigo-500" />
-            5-Year Projection
+      {/* Main Cumulative Chart */}
+      <Card className="border-white/5 shadow-2xl bg-white/[0.02] backdrop-blur-3xl rounded-3xl overflow-hidden">
+        <CardHeader className="border-b border-white/5 pb-4">
+          <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
+            <LineChart className="w-6 h-6 text-indigo-400" />
+            5-Year Cumulative Trajectory
           </CardTitle>
-          <CardDescription>Cumulative cost comparison over time.</CardDescription>
+          <CardDescription className="text-white/60 text-base">Visualize total lifetime spend between SaaS and Self-Hosted options.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <Tabs defaultValue="chart" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 max-w-[400px]">
-              <TabsTrigger value="chart">Area Chart</TabsTrigger>
-              <TabsTrigger value="table">Data Table</TabsTrigger>
-            </TabsList>
+            <div className="flex justify-between items-center mb-6">
+              <TabsList className="grid grid-cols-2 max-w-[400px] bg-black/40 border border-white/5 rounded-xl overflow-hidden h-12">
+                <TabsTrigger value="chart" className="rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-white transition-all h-10">Area Chart</TabsTrigger>
+                <TabsTrigger value="table" className="rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-white transition-all h-10">Data Table</TabsTrigger>
+              </TabsList>
+            </div>
             
             <TabsContent value="chart" className="w-full mt-4" style={{ minHeight: '400px' }}>
-              <ResponsiveContainer width="100%" height={400}>
+              <ResponsiveContainer width="100%" height={450}>
                 <AreaChart
                   data={projections}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
                 >
                   <defs>
                     <linearGradient id="colorSaas" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--chart-saas)" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="var(--chart-saas)" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="colorSelfHosted" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--chart-self-hosted)" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="var(--chart-self-hosted)" stopOpacity={0.2}/>
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.6}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                   <XAxis 
                     dataKey="label" 
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(value) => value.includes('Year') || value === 'Start' ? value : ''}
-                    stroke="var(--muted-foreground)"
+                    stroke="rgba(255,255,255,0.4)"
+                    dy={10}
                   />
                   <YAxis 
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `$${value / 1000}k`}
-                    stroke="var(--muted-foreground)"
+                    tickFormatter={(value) => `${currencySymbol}${value / 1000}k`}
+                    stroke="rgba(255,255,255,0.4)"
+                    dx={-10}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '8px' }}
+                    contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.5)' }}
                     itemStyle={{ fontWeight: 600 }}
                     formatter={(value: any) => formatCurrency(Number(value))}
-                    labelStyle={{ color: 'var(--muted-foreground)', marginBottom: '8px' }}
+                    labelStyle={{ color: 'rgba(255,255,255,0.5)', marginBottom: '8px', fontWeight: 'bold' }}
                   />
-                  <Legend verticalAlign="top" height={36} />
+                  <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: '20px' }} />
                   <Area 
                     type="monotone" 
                     dataKey="saasCumulative" 
-                    name="SaaS Cost"
-                    stroke="var(--chart-saas)" 
-                    strokeWidth={2}
+                    name="Total SaaS Cost"
+                    stroke="#f43f5e" 
+                    strokeWidth={3}
                     fillOpacity={1} 
                     fill="url(#colorSaas)" 
                   />
                   <Area 
                     type="monotone" 
                     dataKey="selfHostedCumulative" 
-                    name="Self-Hosted Cost"
-                    stroke="var(--chart-self-hosted)" 
-                    strokeWidth={3}
+                    name="Total Self-Hosted Cost"
+                    stroke="#10b981" 
+                    strokeWidth={4}
                     fillOpacity={1} 
                     fill="url(#colorSelfHosted)" 
+                    activeDot={{ r: 6, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </TabsContent>
 
             <TabsContent value="table">
-              <div className="rounded-md border border-border/50">
+              <div className="rounded-2xl border border-white/10 overflow-hidden bg-black/40">
                 <Table>
-                  <TableHeader className="bg-muted/50">
-                    <TableRow>
-                      <TableHead>Timeframe</TableHead>
-                      <TableHead className="text-right text-rose-500 font-semibold">Total SaaS</TableHead>
-                      <TableHead className="text-right text-emerald-500 font-semibold">Total Self-Hosted</TableHead>
-                      <TableHead className="text-right text-indigo-400 font-bold">Money Saved</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">1 Year</TableCell>
-                      <TableCell className="text-right">{formatCurrency(year1.saasCumulative)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(year1.selfHostedCumulative)}</TableCell>
-                      <TableCell className="text-right font-bold text-emerald-500">
-                        {formatCurrency(year1.savings)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">3 Years</TableCell>
-                      <TableCell className="text-right">{formatCurrency(year3.saasCumulative)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(year3.selfHostedCumulative)}</TableCell>
-                      <TableCell className="text-right font-bold text-emerald-500">
-                        {formatCurrency(year3.savings)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow className="bg-muted/20">
-                      <TableCell className="font-bold">5 Years</TableCell>
-                      <TableCell className="text-right text-rose-500 font-semibold">{formatCurrency(year5.saasCumulative)}</TableCell>
-                      <TableCell className="text-right text-emerald-500 font-semibold">{formatCurrency(year5.selfHostedCumulative)}</TableCell>
-                      <TableCell className="text-right font-black text-emerald-500 text-lg">
-                        {formatCurrency(year5.savings)}
-                      </TableCell>
-                    </TableRow>
+                  <TableHeader className="bg-white/5">
+                    <TableRow className="border-white/10">
+                       <TableHead className="text-white/70 h-12">Timeframe</TableHead>
+                       <TableHead className="text-right text-rose-400 font-semibold h-12">Total SaaS</TableHead>
+                       <TableHead className="text-right text-emerald-400 font-semibold h-12">Total Self-Hosted</TableHead>
+                       <TableHead className="text-right text-white font-bold h-12 pr-6">Net Savings</TableHead>
+                     </TableRow>
+                   </TableHeader>
+                   <TableBody>
+                     <TableRow className="border-white/10 hover:bg-white/5 transition-colors">
+                       <TableCell className="font-medium text-white/90 py-4">1 Year</TableCell>
+                       <TableCell className="text-right py-4 text-rose-400/80">{formatCurrency(year1.saasCumulative)}</TableCell>
+                       <TableCell className="text-right py-4 text-emerald-400/80">{formatCurrency(year1.selfHostedCumulative)}</TableCell>
+                       <TableCell className={`text-right font-bold py-4 pr-6 ${year1.savings >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                         {formatCurrency(year1.savings)}
+                       </TableCell>
+                     </TableRow>
+                     <TableRow className="border-white/10 hover:bg-white/5 transition-colors">
+                       <TableCell className="font-medium text-white/90 py-4">3 Years</TableCell>
+                       <TableCell className="text-right py-4 text-rose-400/80">{formatCurrency(year3.saasCumulative)}</TableCell>
+                       <TableCell className="text-right py-4 text-emerald-400/80">{formatCurrency(year3.selfHostedCumulative)}</TableCell>
+                       <TableCell className={`text-right font-bold py-4 pr-6 ${year3.savings >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                         {formatCurrency(year3.savings)}
+                       </TableCell>
+                     </TableRow>
+                     <TableRow className="border-t-2 border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
+                       <TableCell className="font-bold text-white py-5">5 Years</TableCell>
+                       <TableCell className="text-right text-rose-400 font-bold py-5">{formatCurrency(year5.saasCumulative)}</TableCell>
+                       <TableCell className="text-right text-emerald-400 font-bold py-5">{formatCurrency(year5.selfHostedCumulative)}</TableCell>
+                       <TableCell className={`text-right font-black text-xl py-5 pr-6 ${year5.savings >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                         {formatCurrency(year5.savings)}
+                       </TableCell>
+                     </TableRow>
                   </TableBody>
                 </Table>
               </div>
@@ -165,33 +200,91 @@ export function SavingsVisualizations({ projections, inputs, pastSavings }: Savi
           </Tabs>
         </CardContent>
       </Card>
-      
-      {/* Mini summary stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="border-border/40 bg-card/50">
-           <CardContent className="p-4 flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Monthly Gap</p>
-                <p className="text-xl font-bold">
-                  {formatCurrency((inputs.saasPerUser * inputs.users) - inputs.selfHostedMonthly)}
-                </p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-indigo-400 opacity-50" />
-           </CardContent>
-        </Card>
-        <Card className="border-border/40 bg-emerald-500/5 border-emerald-500/20">
-           <CardContent className="p-4 flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Total 5-Yr Savings</p>
-                <p className="text-2xl font-black text-emerald-500 tracking-tight">
-                  {formatCurrency(year5.savings)}
-                </p>
-              </div>
-              <Target className="w-10 h-10 text-emerald-500 opacity-20" />
-           </CardContent>
-        </Card>
-      </div>
 
+      {/* Deep Insights Rows */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Yearly Cash Flow Bar Chart */}
+        <Card className="border-white/5 shadow-2xl bg-white/[0.02] backdrop-blur-3xl rounded-3xl overflow-hidden">
+          <CardHeader className="border-b border-white/5 pb-4">
+            <CardTitle className="text-lg font-bold flex items-center gap-2 text-white">
+              <BarChartIcon className="w-5 h-5 text-indigo-400" />
+              Yearly Net Cash Flow
+            </CardTitle>
+            <CardDescription className="text-white/60">Annual savings specifically generated each year.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-8">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={yearlyFlow} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="rgba(255,255,255,0.4)" tickLine={false} axisLine={false} tickFormatter={(value) => `${currencySymbol}${value / 1000}k`} dx={-10} />
+                <Tooltip 
+                  cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
+                  contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
+                  formatter={(value: any) => formatCurrency(Number(value))}
+                />
+                <Bar dataKey="netFlow" radius={[6, 6, 6, 6]}>
+                  {yearlyFlow.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.netFlow >= 0 ? '#10b981' : '#f43f5e'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Spend Distribution Donut Chart */}
+        <Card className="border-white/5 shadow-2xl bg-white/[0.02] backdrop-blur-3xl rounded-3xl overflow-hidden">
+          <CardHeader className="border-b border-white/5 pb-4">
+            <CardTitle className="text-lg font-bold flex items-center gap-2 text-white">
+              <PieChartIcon className="w-5 h-5 text-indigo-400" />
+              SaaS Burn Distribution
+            </CardTitle>
+            <CardDescription className="text-white/60">Where your monthly SaaS money is going right now.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-2 flex flex-col items-center justify-center relative">
+             {spendData.length > 0 ? (
+                <div className="w-full relative h-[340px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={spendData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={80}
+                        outerRadius={120}
+                        paddingAngle={5}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        {spendData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                         contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
+                         formatter={(value: any) => formatCurrency(Number(value))}
+                         itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                      />
+                      <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: '20px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  {/* Center Text */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-[40px]">
+                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mt-2">Spend</span>
+                     <span className="text-2xl font-black text-white">{formatCurrency(spendData.reduce((a, b) => a + b.value, 0))}</span>
+                  </div>
+                </div>
+             ) : (
+                <div className="h-[340px] flex items-center justify-center text-muted-foreground text-sm">
+                   Add subscriptions to see distribution.
+                </div>
+             )}
+          </CardContent>
+        </Card>
+
+      </div>
     </div>
   );
 }

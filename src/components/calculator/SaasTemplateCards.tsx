@@ -57,12 +57,12 @@ const TEMPLATES: Template[] = [
 ];
 
 interface SaasTemplateCardsProps {
-  onSelectTemplate: (data: Partial<CostInput>) => void;
+  onSelectTemplate: (name: string, data: Partial<CostInput>) => void;
 }
 
 export function SaasTemplateCards({ onSelectTemplate }: SaasTemplateCardsProps) {
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2">
       {TEMPLATES.map((template, i) => (
         <motion.div
           key={template.name}
@@ -72,11 +72,11 @@ export function SaasTemplateCards({ onSelectTemplate }: SaasTemplateCardsProps) 
         >
           <Button
             variant="outline"
-            onClick={() => onSelectTemplate(template.data)}
-            className={`h-auto py-3 px-4 flex flex-col items-start gap-1 bg-card/50 backdrop-blur-sm border-border/50 transition-all duration-300 ${template.color}`}
+            onClick={() => onSelectTemplate(template.name, template.data)}
+            className={`h-auto py-2 px-3 flex items-center gap-2 bg-white/5 backdrop-blur-sm border-white/10 transition-all duration-300 ${template.color} rounded-full`}
           >
-            <span className="font-semibold text-base">{template.name}</span>
-            <span className="text-xs text-muted-foreground font-normal">{template.description}</span>
+            <span className="font-semibold text-sm">{template.name}</span>
+            <span className="text-[10px] text-muted-foreground opacity-70 hidden sm:inline-block">• {template.description}</span>
           </Button>
         </motion.div>
       ))}
