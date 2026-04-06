@@ -14,9 +14,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const DEFAULT_INPUTS: Omit<SubscriptionInput, 'id' | 'name'> = {
   saasPerUser: 10,
-  users: 50,
-  selfHostedMonthly: 40,
-  setupCost: 500,
+  users: 1,
+  hasSelfHostedCost: false,
+  selfHostedMonthly: 0,
+  setupCost: 0,
   quitDate: null,
 };
 
@@ -62,7 +63,7 @@ function SubscriptionIcon({ name }: { name: string }) {
 
 export default function CalculatorDashboard() {
   const [isMounted, setIsMounted] = useState(false);
-  const [currency, setCurrency] = useState<'USD' | 'EUR'>('USD');
+  const [currency, setCurrency] = useState<'USD' | 'EUR'>('EUR');
   const [subscriptions, setSubscriptions] = useState<SubscriptionInput[]>([{
     id: "sub-1",
     name: "Primary Application",

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, BarChart as BarChartIcon, PieChart as PieChartIcon, ArrowUpRight, ArrowDownRight, Target } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, Cell, PieChart, Pie, Sector } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, Cell, PieChart, Pie, Sector, Label } from "recharts";
 
 interface SavingsVisualizationsProps {
   projections: ProjectionData[];
@@ -24,6 +24,9 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
   const currencySymbol = currency === 'EUR' ? '€' : '$';
   const formatCurrency = (val: number) => 
     new Intl.NumberFormat(currency === 'EUR' ? 'de-DE' : 'en-US', { style: 'currency', currency: currency, maximumFractionDigits: 0 }).format(val);
+  
+  const formatCompact = (val: number) => 
+    new Intl.NumberFormat(currency === 'EUR' ? 'de-DE' : 'en-US', { style: 'currency', currency: currency, notation: "compact", maximumFractionDigits: 1 }).format(val);
 
   // --- Insight: Break Even Month ---
   const breakEvenProj = projections.find(p => p.savings > 0 && p.month > 0);
@@ -42,10 +45,27 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
   }).filter(Boolean) as {name: string, netFlow: number}[];
 
   // --- Insight: Spend Distribution (Donut) ---
-  const spendData = subscriptions.map(sub => ({
+  const spendData = subscriptions.filter(sub => !sub.quitDate).map(sub => ({
     name: sub.name,
     value: sub.saasPerUser * sub.users,
   })).filter(s => s.value > 0);
+
+  const totalMonthlySpend = spendData.reduce((a, b) => a + b.value, 0);
+
+  // Custom perfectly-centered label for the Donut
+  const DonutCenterLabel = ({ viewBox }: any) => {
+    const { cx, cy } = viewBox;
+    return (
+      <g>
+        <text x={cx} y={cy - 12} textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground text-xs font-semibold uppercase tracking-widest">
+          Spend
+        </text>
+        <text x={cx} y={cy + 16} textAnchor="middle" dominantBaseline="central" className="fill-white text-2xl font-black">
+          {formatCurrency(totalMonthlySpend)}
+        </text>
+      </g>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -123,7 +143,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
                   <YAxis 
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `${currencySymbol}${value / 1000}k`}
+                    tickFormatter={(value) => formatCompact(value)}
                     stroke="rgba(255,255,255,0.4)"
                     dx={-10}
                   />
@@ -218,7 +238,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
               <BarChart data={yearlyFlow} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" tickLine={false} axisLine={false} dy={10} />
-                <YAxis stroke="rgba(255,255,255,0.4)" tickLine={false} axisLine={false} tickFormatter={(value) => `${currencySymbol}${value / 1000}k`} dx={-10} />
+                <YAxis stroke="rgba(255,255,255,0.4)" tickLine={false} axisLine={false} tickFormatter={(value) => formatCompact(value)} dx={-10} />
                 <Tooltip 
                   cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
                   contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
@@ -261,6 +281,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
                         {spendData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
+                        <Label content={<DonutCenterLabel />} position="center" />
                       </Pie>
                       <Tooltip 
                          contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
@@ -270,11 +291,6 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
                       <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: '20px' }} />
                     </PieChart>
                   </ResponsiveContainer>
-                  {/* Center Text */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-[40px]">
-                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mt-2">Spend</span>
-                     <span className="text-2xl font-black text-white">{formatCurrency(spendData.reduce((a, b) => a + b.value, 0))}</span>
-                  </div>
                 </div>
              ) : (
                 <div className="h-[340px] flex items-center justify-center text-muted-foreground text-sm">

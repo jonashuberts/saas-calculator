@@ -56,6 +56,7 @@ export function CostInputSection({ subscription, onChange, onDelete, currency }:
                 id={`saasPerUser-${subscription.id}`}
                 type="number"
                 min="0"
+                step="0.01"
                 value={subscription.saasPerUser}
                 onChange={(e) => handleChange("saasPerUser", Number(e.target.value))}
                 className="bg-background/50 border-rose-500/20 focus-visible:ring-rose-500 h-9"
@@ -117,6 +118,7 @@ export function CostInputSection({ subscription, onChange, onDelete, currency }:
                   id={`selfHostedMonthly-${subscription.id}`}
                   type="number"
                   min="0"
+                  step="0.01"
                   value={subscription.selfHostedMonthly}
                   onChange={(e) => handleChange("selfHostedMonthly", Number(e.target.value))}
                   className="bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500 h-9"
@@ -144,6 +146,7 @@ export function CostInputSection({ subscription, onChange, onDelete, currency }:
                       id={`setupCost-${subscription.id}`}
                       type="number"
                       min="0"
+                      step="0.01"
                       placeholder={`E.g. ${currencySymbol}500 one-time`}
                       value={subscription.setupCost}
                       onChange={(e) => handleChange("setupCost", Number(e.target.value))}
