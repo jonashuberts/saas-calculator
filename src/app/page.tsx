@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { CostInput, SubscriptionInput, calculateAggregatedProjections, calculateTotalPastSavings } from "@/lib/calculator";
+import { CostInput, SubscriptionInput, calculateAggregatedProjections, calculateActualCostProjections, calculateTotalPastSavings } from "@/lib/calculator";
 import { SaasTemplateCards } from "@/components/calculator/SaasTemplateCards";
 import { CostInputSection } from "@/components/calculator/CostInputSection";
 import { SavingsVisualizations } from "@/components/calculator/SavingsVisualizations";
@@ -96,6 +96,7 @@ export default function CalculatorDashboard() {
   const toggleCurrency = () => setCurrency(prev => prev === 'USD' ? 'EUR' : 'USD');
 
   const projections = useMemo(() => calculateAggregatedProjections(subscriptions, 60), [subscriptions]);
+  const actualProjections = useMemo(() => calculateActualCostProjections(subscriptions, 60), [subscriptions]);
   const pastSavings = useMemo(() => calculateTotalPastSavings(subscriptions), [subscriptions]);
   
   const year5 = projections[60] || projections[projections.length - 1] || { savings: 0 };
@@ -370,7 +371,7 @@ export default function CalculatorDashboard() {
 
         {/* Global Projections */}
         <div className="pt-4">
-          <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} />
+          <SavingsVisualizations projections={projections} actualProjections={actualProjections} subscriptions={subscriptions} currency={currency} />
         </div>
 
         {/* Benefits Section */}
