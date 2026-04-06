@@ -1,0 +1,45 @@
+name: Generate Automated Screenshots
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Build Next.js App
+        run: npm run build
+
+      - name: Start App and Capture Screenshots
+        run: |
+          npm run start &
+          echo "Waiting 5 seconds for Next.js to boot..."
+          sleep 5
+          node scripts/generate-screenshots.mjs
+
+      - name: Commit and Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-generate latest marketing screenshots"
+          file_pattern: "public/screenshots/*.png"
