@@ -101,14 +101,14 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
             <LineChart className="w-6 h-6 text-indigo-400" />
             5-Year Cumulative Trajectory
           </CardTitle>
-          <CardDescription className="text-white/60 text-base">Visualize total lifetime spend between SaaS and Self-Hosted options.</CardDescription>
+          <CardDescription className="text-white/60 text-base">Projects your lifetime spend assuming all tools remained SaaS vs. your current self-hosted infrastructure.</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <Tabs defaultValue="chart" className="w-full">
             <div className="flex justify-between items-center mb-6">
-              <TabsList className="grid grid-cols-2 max-w-[400px] bg-black/40 border border-white/5 rounded-xl overflow-hidden h-12">
-                <TabsTrigger value="chart" className="rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-white transition-all h-10">Area Chart</TabsTrigger>
-                <TabsTrigger value="table" className="rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-white transition-all h-10">Data Table</TabsTrigger>
+              <TabsList className="inline-flex h-11 items-center justify-center rounded-lg bg-black/40 border border-white/5 p-1 text-muted-foreground w-full max-w-[300px]">
+                <TabsTrigger value="chart" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm w-full">Area Chart</TabsTrigger>
+                <TabsTrigger value="table" className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm w-full">Data Table</TabsTrigger>
               </TabsList>
             </div>
             
@@ -180,8 +180,8 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
                   <TableHeader className="bg-white/5">
                     <TableRow className="border-white/10">
                        <TableHead className="text-white/70 h-12">Timeframe</TableHead>
-                       <TableHead className="text-right text-rose-400 font-semibold h-12">Total SaaS</TableHead>
-                       <TableHead className="text-right text-emerald-400 font-semibold h-12">Total Self-Hosted</TableHead>
+                       <TableHead className="text-right text-rose-400 font-semibold h-12 whitespace-nowrap">Total SaaS <span className="opacity-60 font-normal text-xs">(If not migrated)</span></TableHead>
+                       <TableHead className="text-right text-emerald-400 font-semibold h-12 whitespace-nowrap">Total Self-Hosted <span className="opacity-60 font-normal text-xs">(Actual)</span></TableHead>
                        <TableHead className="text-right text-white font-bold h-12 pr-6">Net Savings</TableHead>
                      </TableRow>
                    </TableHeader>
