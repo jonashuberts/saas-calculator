@@ -97,18 +97,18 @@ export default function MarketingStudio() {
       </div>
 
       {/* SHOT 2: Area Chart Tracker */}
-      <div id="shot-2" className="w-[1400px] h-[750px] p-24 bg-gradient-to-tr from-indigo-500 via-fuchsia-500 to-pink-200 flex flex-col items-center justify-center">
+      <div id="shot-2" className="w-[1400px] h-[850px] p-24 bg-gradient-to-tr from-indigo-500 via-fuchsia-500 to-pink-200 flex flex-col items-center justify-center">
         <BrowserShell>
           <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} hideBottomCharts />
         </BrowserShell>
       </div>
 
       {/* SHOT 3: Bottom Analytics */}
-      <div id="shot-3" className="w-[1400px] h-[750px] p-24 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-400 flex flex-col items-center justify-center">
+      <div id="shot-3" className="w-[1400px] h-[850px] p-24 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-400 flex flex-col items-center justify-center">
         <BrowserShell>
            <div className="space-y-6">
-                 {/* This renders just the bar and pie chart grids */}
-                 <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} hideAreaChart />
+                 {/* This renders just the bar and pie chart grids without the command center */}
+                 <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} hideAreaChart hideCommandCenter />
            </div>
            <div className="hidden">
               <QualitativeBenefits />

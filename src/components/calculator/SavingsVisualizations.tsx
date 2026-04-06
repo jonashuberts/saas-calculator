@@ -13,11 +13,12 @@ interface SavingsVisualizationsProps {
   currency: 'USD' | 'EUR';
   hideAreaChart?: boolean;
   hideBottomCharts?: boolean;
+  hideCommandCenter?: boolean;
 }
 
 const COLORS = ['#10b981', '#6366f1', '#f43f5e', '#f59e0b', '#3b82f6', '#8b5cf6', '#14b8a6', '#f97316'];
 
-export function SavingsVisualizations({ projections, subscriptions = [], currency, hideAreaChart, hideBottomCharts }: SavingsVisualizationsProps) {
+export function SavingsVisualizations({ projections, subscriptions = [], currency, hideAreaChart, hideBottomCharts, hideCommandCenter }: SavingsVisualizationsProps) {
   
   const year1 = projections[12] || projections[projections.length - 1];
   const year3 = projections[36] || projections[projections.length - 1];
@@ -66,7 +67,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
     <div className="space-y-6">
       
       {/* Visual Insights Command Center */}
-      {(totalSetupCost > 0 || breakEvenProj) && (
+      {!hideCommandCenter && (totalSetupCost > 0 || breakEvenProj) && (
         <Card className="border-emerald-500/20 bg-emerald-500/[0.02] shadow-xl overflow-hidden relative">
           <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 rounded-l-lg"></div>
           <CardContent className="p-6">
