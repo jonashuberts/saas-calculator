@@ -54,13 +54,16 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
 
   // Custom perfectly-centered label for the Donut
   const DonutCenterLabel = ({ viewBox }: any) => {
-    const { cx, cy } = viewBox;
+    const { cx, cy } = viewBox || {};
+    const centerX = cx && !isNaN(cx) ? cx : "50%";
+    const centerY = cy && !isNaN(cy) ? cy : "50%";
+    
     return (
       <g>
-        <text x={cx} y={cy - 12} textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground text-xs font-semibold uppercase tracking-widest">
+        <text x={centerX} y={centerY} dy={-12} textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground text-xs font-semibold uppercase tracking-widest">
           Spend
         </text>
-        <text x={cx} y={cy + 16} textAnchor="middle" dominantBaseline="central" className="fill-white text-2xl font-black">
+        <text x={centerX} y={centerY} dy={16} textAnchor="middle" dominantBaseline="central" className="fill-white text-2xl font-black">
           {formatCurrency(totalMonthlySpend)}
         </text>
       </g>
