@@ -11,11 +11,13 @@ interface SavingsVisualizationsProps {
   projections: ProjectionData[];
   subscriptions?: SubscriptionInput[];
   currency: 'USD' | 'EUR';
+  hideAreaChart?: boolean;
+  hideBottomCharts?: boolean;
 }
 
 const COLORS = ['#10b981', '#6366f1', '#f43f5e', '#f59e0b', '#3b82f6', '#8b5cf6', '#14b8a6', '#f97316'];
 
-export function SavingsVisualizations({ projections, subscriptions = [], currency }: SavingsVisualizationsProps) {
+export function SavingsVisualizations({ projections, subscriptions = [], currency, hideAreaChart, hideBottomCharts }: SavingsVisualizationsProps) {
   
   const year1 = projections[12] || projections[projections.length - 1];
   const year3 = projections[36] || projections[projections.length - 1];
@@ -91,6 +93,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
       )}
 
       {/* Main Cumulative Chart */}
+      {!hideAreaChart && (
       <Card className="border-white/5 shadow-2xl bg-white/[0.02] backdrop-blur-3xl rounded-3xl overflow-hidden">
         <CardHeader className="border-b border-white/5 pb-4">
           <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
@@ -213,8 +216,10 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
           </Tabs>
         </CardContent>
       </Card>
+      )}
 
       {/* Deep Insights Rows */}
+      {!hideBottomCharts && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Yearly Cash Flow Bar Chart */}
@@ -310,6 +315,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
         </Card>
 
       </div>
+      )}
     </div>
   );
 }

@@ -27,8 +27,8 @@ export default function MarketingStudio() {
   const formatCurrency = (val: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
 
   const subscriptions: SubscriptionInput[] = [
-    { id: "1", name: "Notion", saasPerUser: 10, users: 50, hasSelfHostedCost: true, selfHostedMonthly: 15, setupCost: 0, quitDate: null },
-    { id: "2", name: "Netflix Premium", saasPerUser: 23, users: 1, hasSelfHostedCost: true, selfHostedMonthly: 10, setupCost: 300, quitDate: null },
+    { id: "1", name: "Notion", saasPerUser: 10, users: 50, hasSelfHostedCost: true, selfHostedMonthly: 0, setupCost: 0, quitDate: new Date("2023-01-01") },
+    { id: "2", name: "Netflix Premium", saasPerUser: 23, users: 1, hasSelfHostedCost: true, selfHostedMonthly: 10, setupCost: 2000, quitDate: null },
     { id: "3", name: "Vercel Pro", saasPerUser: 25, users: 40, hasSelfHostedCost: true, selfHostedMonthly: 25, setupCost: 0, quitDate: null },
   ];
 
@@ -93,7 +93,7 @@ export default function MarketingStudio() {
       {/* SHOT 2: Area Chart Tracker */}
       <div id="shot-2" className="w-[1400px] p-24 bg-gradient-to-tr from-indigo-500 via-fuchsia-500 to-pink-200 flex flex-col items-center justify-center">
         <BrowserShell>
-          <SavingsVisualizations projections={projections} subscriptions={[]} currency={currency} />
+          <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} hideBottomCharts />
         </BrowserShell>
       </div>
 
@@ -101,8 +101,8 @@ export default function MarketingStudio() {
       <div id="shot-3" className="w-[1400px] p-24 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-400 flex flex-col items-center justify-center">
         <BrowserShell>
            <div className="space-y-6">
-                 {/* This just maps the internal components from SavingsVisualizations without the Area Chart */}
-                 <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} />
+                 {/* This renders just the bar and pie chart grids */}
+                 <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} hideAreaChart />
            </div>
            <div className="pt-10 mt-10 border-t border-white/10">
               <QualitativeBenefits />
