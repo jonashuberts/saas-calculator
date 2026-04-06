@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { SubscriptionInput, calculateAggregatedProjections, calculateActualCostProjections, calculateTotalPastSavings, calculateHistoricalSpend } from "@/lib/calculator";
+import { SubscriptionInput, calculateAggregatedProjections, calculateActualCostProjections, calculateTotalPastSavings, calculateHistoricalSpend, calculateTotalHistoricalSpend } from "@/lib/calculator";
 import { SavingsVisualizations } from "@/components/calculator/SavingsVisualizations";
 import { PiggyBank, Globe, AppWindow } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -78,7 +78,7 @@ export default function MarketingStudio() {
                 <CardContent className="p-5">
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Saved Since Migrations</p>
                   <p className="text-3xl font-black text-white">{formatCurrency(pastSavings)}</p>
-                  <p className="text-xs text-white/40 mt-1">Across {migratedSubs.length} retired SaaS tool{migratedSubs.length !== 1 ? 's' : ''}</p>
+                  <p className="text-[10px] text-white/40 mt-1">Paid {formatCurrency(calculateTotalHistoricalSpend(subscriptions))} total to SaaS to date</p>
                 </CardContent>
               </Card>
               <Card className="border-emerald-500/20 bg-emerald-500/[0.03] rounded-2xl overflow-hidden relative">
