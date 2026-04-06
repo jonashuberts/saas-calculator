@@ -1,6 +1,9 @@
 name: Generate Automated Screenshots
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
