@@ -176,52 +176,36 @@ export default function CalculatorDashboard() {
           </div>
         </div>
 
-        {/* Unified Stats Strip */}
+        {/* Dashboard KPIs */}
         {(() => {
           const activeSubs = subscriptions.filter(s => !s.quitDate);
           const migratedSubs = subscriptions.filter(s => !!s.quitDate);
           const activeMonthlyBurn = activeSubs.reduce((acc, s) => acc + s.saasPerUser * s.users, 0);
-          const potentialExtra = activeSubs.reduce((acc, s) => {
-            const sh = s.hasSelfHostedCost !== false ? s.selfHostedMonthly : 0;
-            return acc + (s.saasPerUser * s.users) - sh;
-          }, 0);
-          const totalSetupCost = subscriptions.reduce((acc, s) => acc + (s.hasSelfHostedCost !== false ? s.setupCost : 0), 0);
-          const breakEvenMonth = projections.find(p => p.savings > 0 && p.month > 0)?.month;
 
           return (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <Card className="border-rose-500/20 bg-rose-500/[0.03] rounded-2xl overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-rose-500 to-transparent" />
-                <CardContent className="p-4">
-                  <p className="text-[10px] font-semibold text-rose-400 uppercase tracking-wider mb-1">Active SaaS Spend</p>
-                  <p className="text-2xl font-black text-white">{formatCurrency(activeMonthlyBurn)}<span className="text-xs font-normal text-white/40">/mo</span></p>
-                  <p className="text-[11px] text-white/40 mt-0.5">{activeSubs.length} tool{activeSubs.length !== 1 ? 's' : ''} not yet migrated</p>
-                </CardContent>
-              </Card>
-              <Card className="border-amber-500/20 bg-amber-500/[0.03] rounded-2xl overflow-hidden relative">
-                <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-500 to-transparent" />
-                <CardContent className="p-4">
-                  <p className="text-[10px] font-semibold text-amber-400 uppercase tracking-wider mb-1">Potential Extra Savings</p>
-                  <p className="text-2xl font-black text-white">{formatCurrency(potentialExtra)}<span className="text-xs font-normal text-white/40">/mo</span></p>
-                  <p className="text-[11px] text-white/40 mt-0.5">If all remaining apps migrated</p>
+                <CardContent className="p-5">
+                  <p className="text-[10px] font-semibold text-rose-400 uppercase tracking-wider mb-1">Current SaaS Bill</p>
+                  <p className="text-3xl font-black text-white">{formatCurrency(activeMonthlyBurn)}<span className="text-sm font-normal text-white/40">/mo</span></p>
+                  <p className="text-xs text-white/40 mt-1">{activeSubs.length} active · {migratedSubs.length} migrated</p>
                 </CardContent>
               </Card>
               <Card className="border-white/5 bg-white/[0.02] rounded-2xl overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500/50 to-transparent" />
-                <CardContent className="p-4">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Realized Savings</p>
-                  <p className="text-2xl font-black text-white">{formatCurrency(pastSavings)}</p>
-                  <p className="text-[11px] text-white/40 mt-0.5">{migratedSubs.length} migrated tool{migratedSubs.length !== 1 ? 's' : ''} so far</p>
+                <CardContent className="p-5">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Saved Since Migrations</p>
+                  <p className="text-3xl font-black text-white">{formatCurrency(pastSavings)}</p>
+                  <p className="text-xs text-white/40 mt-1">Across {migratedSubs.length} retired SaaS tool{migratedSubs.length !== 1 ? 's' : ''}</p>
                 </CardContent>
               </Card>
               <Card className="border-emerald-500/20 bg-emerald-500/[0.03] rounded-2xl overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-500 to-transparent" />
-                <CardContent className="p-4">
+                <CardContent className="p-5">
                   <p className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-1">5-Yr Projected Savings</p>
-                  <p className="text-2xl font-black text-emerald-400">{formatCurrency(year5.savings)}</p>
-                  {totalSetupCost > 0 && breakEvenMonth && (
-                    <p className="text-[11px] text-white/40 mt-0.5">Break-even at month {breakEvenMonth}</p>
-                  )}
+                  <p className="text-3xl font-black text-emerald-400">{formatCurrency(year5.savings)}</p>
+                  <p className="text-xs text-white/40 mt-1">If all tools fully migrated</p>
                 </CardContent>
               </Card>
             </div>
