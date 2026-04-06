@@ -52,23 +52,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
 
   const totalMonthlySpend = spendData.reduce((a, b) => a + b.value, 0);
 
-  // Custom perfectly-centered label for the Donut
-  const DonutCenterLabel = ({ viewBox }: any) => {
-    const { cx, cy } = viewBox || {};
-    const centerX = cx && !isNaN(cx) ? cx : "50%";
-    const centerY = cy && !isNaN(cy) ? cy : "50%";
-    
-    return (
-      <g>
-        <text x={centerX} y={centerY} dy={-12} textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground text-xs font-semibold uppercase tracking-widest">
-          Spend
-        </text>
-        <text x={centerX} y={centerY} dy={16} textAnchor="middle" dominantBaseline="central" className="fill-white text-2xl font-black">
-          {formatCurrency(totalMonthlySpend)}
-        </text>
-      </g>
-    );
-  };
+
 
   return (
     <div className="space-y-6">
@@ -245,9 +229,10 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
                 <Tooltip 
                   cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
                   contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
-                  formatter={(value: any) => formatCurrency(Number(value))}
+                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  formatter={(value: any) => [formatCurrency(Number(value)), "Net Savings"]}
                 />
-                <Bar dataKey="netFlow" name="Net Savings" radius={[6, 6, 6, 6]}>
+                <Bar dataKey="netFlow" name="Net Savings" fill="#10b981" radius={[6, 6, 6, 6]}>
                   {yearlyFlow.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.netFlow >= 0 ? '#10b981' : '#f43f5e'} />
                   ))}
@@ -284,7 +269,22 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
                         {spendData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
-                        <Label content={DonutCenterLabel} position="center" />
+                        <Label 
+                          value="SPEND" 
+                          position="center" 
+                          dy={-14} 
+                          fill="rgba(255,255,255,0.5)"
+                          fontSize={12}
+                          fontWeight={600}
+                        />
+                        <Label 
+                          value={formatCurrency(totalMonthlySpend)} 
+                          position="center" 
+                          dy={12} 
+                          fill="#ffffff"
+                          fontSize={24}
+                          fontWeight={900}
+                        />
                       </Pie>
                       <Tooltip 
                          contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
