@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { CostInput, SubscriptionInput, calculateAggregatedProjections, calculateActualCostProjections, calculateTotalPastSavings } from "@/lib/calculator";
+import { CostInput, SubscriptionInput, calculateAggregatedProjections, calculateActualCostProjections, calculateTotalPastSavings, calculateHistoricalSpend } from "@/lib/calculator";
 import { SaasTemplateCards } from "@/components/calculator/SaasTemplateCards";
 import { CostInputSection } from "@/components/calculator/CostInputSection";
 import { SavingsVisualizations } from "@/components/calculator/SavingsVisualizations";
@@ -18,6 +18,7 @@ const DEFAULT_INPUTS: Omit<SubscriptionInput, 'id' | 'name'> = {
   hasSelfHostedCost: false,
   selfHostedMonthly: 0,
   setupCost: 0,
+  startDate: null,
   quitDate: null,
 };
 
@@ -244,6 +245,7 @@ export default function CalculatorDashboard() {
                   <TableHead className="text-right h-14 text-rose-400/80 font-semibold">SaaS Cost (mo)</TableHead>
                   <TableHead className="text-right h-14 text-emerald-400/80 font-semibold">Self-Hosted Cost (mo)</TableHead>
                   <TableHead className="text-right h-14 text-emerald-400 font-bold">Monthly Gap</TableHead>
+                  <TableHead className="text-right h-14 text-rose-300 font-semibold">Total Spent (to date)</TableHead>
                   <TableHead className="text-right h-14 text-white/70 w-[100px] pr-6">Manage</TableHead>
                 </TableRow>
               </TableHeader>
@@ -280,6 +282,9 @@ export default function CalculatorDashboard() {
                         <span className="text-[9px] uppercase tracking-wider opacity-60 mt-0.5">
                           {sub.quitDate ? 'Realized' : 'Potential'}
                         </span>
+                      </TableCell>
+                      <TableCell className="text-right py-4 text-white/60 font-medium">
+                        {formatCurrency(calculateHistoricalSpend(sub))}
                       </TableCell>
                       <TableCell className="text-right py-4 pr-6">
                         <Button 

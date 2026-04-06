@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { SubscriptionInput, calculateAggregatedProjections, calculateActualCostProjections, calculateTotalPastSavings } from "@/lib/calculator";
+import { SubscriptionInput, calculateAggregatedProjections, calculateActualCostProjections, calculateTotalPastSavings, calculateHistoricalSpend } from "@/lib/calculator";
 import { SavingsVisualizations } from "@/components/calculator/SavingsVisualizations";
 import { PiggyBank, Globe, AppWindow } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,10 +26,10 @@ export default function MarketingStudio() {
   const formatCurrency = (val: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
 
   const subscriptions: SubscriptionInput[] = [
-    { id: "1", name: "Notion", saasPerUser: 10, users: 50, hasSelfHostedCost: true, selfHostedMonthly: 0, setupCost: 0, quitDate: new Date("2023-01-01") },
-    { id: "2", name: "Netflix Premium", saasPerUser: 23, users: 1, hasSelfHostedCost: true, selfHostedMonthly: 10, setupCost: 2000, quitDate: null },
-    { id: "3", name: "Vercel Pro", saasPerUser: 25, users: 40, hasSelfHostedCost: true, selfHostedMonthly: 25, setupCost: 0, quitDate: new Date("2023-06-01") },
-    { id: "4", name: "Slack Pro", saasPerUser: 8.75, users: 50, hasSelfHostedCost: true, selfHostedMonthly: 40, setupCost: 300, quitDate: null }
+    { id: "1", name: "Notion", saasPerUser: 10, users: 50, hasSelfHostedCost: true, selfHostedMonthly: 0, setupCost: 0, startDate: new Date("2021-03-01"), quitDate: new Date("2023-01-01") },
+    { id: "2", name: "Netflix Premium", saasPerUser: 23, users: 1, hasSelfHostedCost: true, selfHostedMonthly: 10, setupCost: 2000, startDate: new Date("2020-06-01"), quitDate: null },
+    { id: "3", name: "Vercel Pro", saasPerUser: 25, users: 40, hasSelfHostedCost: true, selfHostedMonthly: 25, setupCost: 0, startDate: new Date("2022-01-01"), quitDate: new Date("2023-06-01") },
+    { id: "4", name: "Slack Pro", saasPerUser: 8.75, users: 50, hasSelfHostedCost: true, selfHostedMonthly: 40, setupCost: 300, startDate: new Date("2021-09-01"), quitDate: null }
   ];
 
   const projections = useMemo(() => calculateAggregatedProjections(subscriptions, 60), [subscriptions]);
@@ -94,7 +94,7 @@ export default function MarketingStudio() {
             {/* Table — same columns as real app */}
             <div className="rounded-3xl border border-white/10 shadow-2xl bg-black/40 overflow-hidden">
                <Table>
-                 <TableHeader className="bg-white/5 border-b border-white/10"><TableRow><TableHead className="font-semibold h-14 text-white/70">Service / App</TableHead><TableHead className="text-right h-14 text-rose-400/80">SaaS Cost (mo)</TableHead><TableHead className="text-right h-14 text-emerald-400/80">Self-Hosted Cost (mo)</TableHead><TableHead className="text-right h-14 text-emerald-400 font-bold">Monthly Gap</TableHead></TableRow></TableHeader>
+                 <TableHeader className="bg-white/5 border-b border-white/10"><TableRow><TableHead className="font-semibold h-14 text-white/70">Service / App</TableHead><TableHead className="text-right h-14 text-rose-400/80">SaaS Cost (mo)</TableHead><TableHead className="text-right h-14 text-emerald-400/80">Self-Hosted Cost (mo)</TableHead><TableHead className="text-right h-14 text-emerald-400 font-bold">Monthly Gap</TableHead><TableHead className="text-right h-14 text-rose-300 font-semibold">Total Spent (to date)</TableHead></TableRow></TableHeader>
                  <TableBody>
                    {subscriptions.map(sub => {
                      const saasMonthly = sub.saasPerUser * sub.users;
@@ -120,6 +120,9 @@ export default function MarketingStudio() {
                          <TableCell className={`text-right py-4 ${sub.quitDate ? 'text-emerald-400 font-bold' : 'text-amber-500/80 font-medium'}`}>
                            {formatCurrency(gap)}
                            <span className="block text-[9px] uppercase tracking-wider opacity-60 mt-0.5">{sub.quitDate ? 'Realized' : 'Potential'}</span>
+                         </TableCell>
+                         <TableCell className="text-right py-4 text-white/60 font-medium">
+                           {formatCurrency(calculateHistoricalSpend(sub))}
                          </TableCell>
                        </TableRow>
                      )

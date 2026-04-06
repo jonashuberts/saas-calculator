@@ -76,6 +76,18 @@ export function CostInputSection({ subscription, onChange, onDelete, currency }:
               />
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor={`startDate-${subscription.id}`} className="flex items-center gap-2 text-muted-foreground text-xs">
+              <Calendar className="w-3 h-3" /> Paying Since
+            </Label>
+            <Input
+              id={`startDate-${subscription.id}`}
+              type="month"
+              value={subscription.startDate ? new Date(subscription.startDate).toISOString().slice(0, 7) : ""}
+              onChange={(e) => handleChange("startDate", e.target.value ? new Date(e.target.value) : null)}
+              className="bg-background/50 border-rose-500/20 focus-visible:ring-rose-500 h-9"
+            />
+          </div>
           <div className="pt-2 flex justify-between items-center text-sm font-medium">
             <span className="text-muted-foreground">Monthly SaaS Cost:</span>
             <span className="text-rose-500 text-base">{currencySymbol}{(subscription.saasPerUser * subscription.users).toLocaleString()}</span>

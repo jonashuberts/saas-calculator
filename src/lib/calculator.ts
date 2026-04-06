@@ -3,6 +3,7 @@ export interface CostInput {
   users: number;
   selfHostedMonthly: number;
   setupCost: number;
+  startDate: Date | null;
   quitDate: Date | null;
   hasSelfHostedCost?: boolean;
 }
@@ -66,6 +67,7 @@ export function calculateAggregatedProjections(
       users: 0,
       selfHostedMonthly: 0,
       setupCost: 0,
+      startDate: null,
       quitDate: null,
       hasSelfHostedCost: true,
     }, monthsToProject);
@@ -126,6 +128,28 @@ export function calculatePastSavings(input: CostInput): number {
 
 export function calculateTotalPastSavings(inputs: CostInput[]): number {
   return inputs.reduce((total, input) => total + calculatePastSavings(input), 0);
+}
+
+/**
+ * Calculate how much the user has historically spent on a subscription.
+ * From startDate to quitDate (if migrated) or to now (if still active).
+ */
+export function calculateHistoricalSpend(input: CostInput): number {
+  if (!input.startDate) return 0;
+  
+  const start = new Date(input.startDate);
+  const end = input.quitDate ? new Date(input.quitDate) : new Date();
+  
+  if (start >= end) return 0;
+  
+  const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  if (months <= 0) return 0;
+  
+  return (input.saasPerUser * input.users) * months;
+}
+
+export function calculateTotalHistoricalSpend(inputs: CostInput[]): number {
+  return inputs.reduce((total, input) => total + calculateHistoricalSpend(input), 0);
 }
 
 /**
