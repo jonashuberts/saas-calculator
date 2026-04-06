@@ -265,14 +265,25 @@ export default function CalculatorDashboard() {
                   const selfHostedMonthly = sub.hasSelfHostedCost !== false ? sub.selfHostedMonthly : 0;
                   const gap = saasMonthly - selfHostedMonthly;
                   return (
-                    <TableRow key={sub.id} className="hover:bg-white/[0.03] transition-colors border-white/5 group">
+                    <TableRow key={sub.id} className={`hover:bg-white/[0.03] transition-colors border-white/5 group ${sub.quitDate ? 'opacity-70 bg-white/[0.01]' : ''}`}>
                       <TableCell className="font-semibold text-white/90 py-4">
                         <div className="flex items-center gap-3">
-                          <SubscriptionIcon name={sub.name} />
-                          {sub.name}
+                          <div className={`${sub.quitDate ? 'grayscale opacity-70' : ''}`}>
+                             <SubscriptionIcon name={sub.name} />
+                          </div>
+                          <div className="flex flex-col">
+                             <div className="flex items-center gap-2">
+                               {sub.name}
+                               {sub.quitDate && <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide">Migrated</span>}
+                             </div>
+                          </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right text-rose-400/90 py-4 font-medium">{formatCurrency(saasMonthly)}</TableCell>
+                      <TableCell className="text-right py-4 font-medium">
+                        <span className={sub.quitDate ? "line-through text-rose-400/40" : "text-rose-400/90"}>
+                          {formatCurrency(saasMonthly)}
+                        </span>
+                      </TableCell>
                       <TableCell className="text-right text-emerald-400/90 py-4 font-medium">
                         {sub.hasSelfHostedCost !== false ? formatCurrency(selfHostedMonthly) : <span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded text-xs">Shared (Free)</span>}
                       </TableCell>
