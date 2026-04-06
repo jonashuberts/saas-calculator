@@ -36,8 +36,14 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
   const yearlyFlow = [1, 2, 3, 4, 5].map(year => {
     const monthIdx = year * 12;
     const prevMonthIdx = (year - 1) * 12;
-    if (!projections[monthIdx] || !projections[prevMonthIdx]) return null;
-    const netFlow = projections[monthIdx].savings - projections[prevMonthIdx].savings;
+    if (!projections[monthIdx]) return null;
+    
+    // For Year 1, the total net flow is exactly the accumulated savings at M12 (which naturally includes the M0 setup costs). 
+    // For subsequent years, it's the delta between the current year and the previous year.
+    const netFlow = year === 1 
+      ? projections[monthIdx].savings 
+      : projections[monthIdx].savings - (projections[prevMonthIdx]?.savings || 0);
+      
     return {
       name: `Year ${year}`,
       netFlow,
