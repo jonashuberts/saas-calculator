@@ -23,7 +23,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
 
   const currencySymbol = currency === 'EUR' ? '€' : '$';
   const formatCurrency = (val: number) => 
-    new Intl.NumberFormat(currency === 'EUR' ? 'de-DE' : 'en-US', { style: 'currency', currency: currency, maximumFractionDigits: 0 }).format(val);
+    new Intl.NumberFormat(currency === 'EUR' ? 'de-DE' : 'en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val);
   
   const formatCompact = (val: number) => 
     new Intl.NumberFormat(currency === 'EUR' ? 'de-DE' : 'en-US', { style: 'currency', currency: currency, notation: "compact", maximumFractionDigits: 1 }).format(val);
@@ -244,7 +244,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
                   contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
                   formatter={(value: any) => formatCurrency(Number(value))}
                 />
-                <Bar dataKey="netFlow" radius={[6, 6, 6, 6]}>
+                <Bar dataKey="netFlow" name="Net Savings" radius={[6, 6, 6, 6]}>
                   {yearlyFlow.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.netFlow >= 0 ? '#10b981' : '#f43f5e'} />
                   ))}
@@ -281,7 +281,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
                         {spendData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
-                        <Label content={<DonutCenterLabel />} position="center" />
+                        <Label content={DonutCenterLabel} position="center" />
                       </Pie>
                       <Tooltip 
                          contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}

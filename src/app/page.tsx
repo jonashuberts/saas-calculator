@@ -104,7 +104,7 @@ export default function CalculatorDashboard() {
     return acc + ((sub.saasPerUser * sub.users) - selfHosted);
   }, 0);
   const formatCurrency = (val: number) => 
-    new Intl.NumberFormat(currency === 'EUR' ? 'de-DE' : 'en-US', { style: 'currency', currency: currency, maximumFractionDigits: 0 }).format(val);
+    new Intl.NumberFormat(currency === 'EUR' ? 'de-DE' : 'en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val);
 
   const handleReset = () => {
     setSubscriptions([{ id: "sub-1", name: "Primary Application", ...DEFAULT_INPUTS }]);
