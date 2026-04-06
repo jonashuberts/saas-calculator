@@ -255,7 +255,7 @@ export default function CalculatorDashboard() {
                   <TableHead className="w-[300px] h-14 text-white/70 font-semibold">Service / App</TableHead>
                   <TableHead className="text-right h-14 text-rose-400/80 font-semibold">SaaS Cost (mo)</TableHead>
                   <TableHead className="text-right h-14 text-emerald-400/80 font-semibold">Self-Hosted Cost (mo)</TableHead>
-                  <TableHead className="text-right h-14 text-emerald-400 font-bold">Monthly Savings</TableHead>
+                  <TableHead className="text-right h-14 text-emerald-400 font-bold">Monthly Gap</TableHead>
                   <TableHead className="text-right h-14 text-white/70 w-[100px] pr-6">Manage</TableHead>
                 </TableRow>
               </TableHeader>
@@ -287,7 +287,12 @@ export default function CalculatorDashboard() {
                       <TableCell className="text-right text-emerald-400/90 py-4 font-medium">
                         {sub.hasSelfHostedCost !== false ? formatCurrency(selfHostedMonthly) : <span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded text-xs">Shared (Free)</span>}
                       </TableCell>
-                      <TableCell className="text-right text-emerald-400 font-bold py-4">{formatCurrency(gap)}</TableCell>
+                      <TableCell className={`text-right py-4 flex flex-col items-end justify-center ${sub.quitDate ? 'text-emerald-400 font-bold' : 'text-amber-500/80 font-medium'}`}>
+                        {formatCurrency(gap)}
+                        <span className="text-[9px] uppercase tracking-wider opacity-60 mt-0.5">
+                          {sub.quitDate ? 'Realized' : 'Potential'}
+                        </span>
+                      </TableCell>
                       <TableCell className="text-right py-4 pr-6">
                         <Button 
                           variant="ghost" 

@@ -29,7 +29,8 @@ export default function MarketingStudio() {
   const subscriptions: SubscriptionInput[] = [
     { id: "1", name: "Notion", saasPerUser: 10, users: 50, hasSelfHostedCost: true, selfHostedMonthly: 0, setupCost: 0, quitDate: new Date("2023-01-01") },
     { id: "2", name: "Netflix Premium", saasPerUser: 23, users: 1, hasSelfHostedCost: true, selfHostedMonthly: 10, setupCost: 2000, quitDate: null },
-    { id: "3", name: "Vercel Pro", saasPerUser: 25, users: 40, hasSelfHostedCost: true, selfHostedMonthly: 25, setupCost: 0, quitDate: null },
+    { id: "3", name: "Vercel Pro", saasPerUser: 25, users: 40, hasSelfHostedCost: true, selfHostedMonthly: 25, setupCost: 0, quitDate: new Date("2023-06-01") },
+    { id: "4", name: "Slack Pro", saasPerUser: 8.75, users: 50, hasSelfHostedCost: true, selfHostedMonthly: 40, setupCost: 300, quitDate: null }
   ];
 
   const projections = useMemo(() => calculateAggregatedProjections(subscriptions, 60), [subscriptions]);
@@ -79,7 +80,12 @@ export default function MarketingStudio() {
                          <TableCell className="font-semibold text-white/90 py-4 max-w-[200px]"><div className="flex items-center gap-3"><SubscriptionIcon name={sub.name} />{sub.name}</div></TableCell>
                          <TableCell className="text-right text-rose-400/90 py-4">{formatCurrency(saasMonthly)}</TableCell>
                          <TableCell className="text-right text-emerald-400/90 py-4">{formatCurrency(sub.selfHostedMonthly)}</TableCell>
-                         <TableCell className="text-right text-emerald-400 font-bold py-4">{formatCurrency(saasMonthly - sub.selfHostedMonthly)}</TableCell>
+                         <TableCell className={`text-right py-4 flex flex-col items-end justify-center ${sub.quitDate ? 'text-emerald-400 font-bold' : 'text-amber-500/80 font-medium'}`}>
+                           {formatCurrency(saasMonthly - sub.selfHostedMonthly)}
+                           <span className="text-[9px] uppercase tracking-wider opacity-60 mt-0.5">
+                             {sub.quitDate ? 'Realized' : 'Potential'}
+                           </span>
+                         </TableCell>
                        </TableRow>
                      )
                    })}
@@ -91,20 +97,20 @@ export default function MarketingStudio() {
       </div>
 
       {/* SHOT 2: Area Chart Tracker */}
-      <div id="shot-2" className="w-[1400px] p-24 bg-gradient-to-tr from-indigo-500 via-fuchsia-500 to-pink-200 flex flex-col items-center justify-center">
+      <div id="shot-2" className="w-[1400px] h-[750px] p-24 bg-gradient-to-tr from-indigo-500 via-fuchsia-500 to-pink-200 flex flex-col items-center justify-center">
         <BrowserShell>
           <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} hideBottomCharts />
         </BrowserShell>
       </div>
 
       {/* SHOT 3: Bottom Analytics */}
-      <div id="shot-3" className="w-[1400px] p-24 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-400 flex flex-col items-center justify-center">
+      <div id="shot-3" className="w-[1400px] h-[750px] p-24 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-400 flex flex-col items-center justify-center">
         <BrowserShell>
            <div className="space-y-6">
                  {/* This renders just the bar and pie chart grids */}
                  <SavingsVisualizations projections={projections} subscriptions={subscriptions} currency={currency} hideAreaChart />
            </div>
-           <div className="pt-10 mt-10 border-t border-white/10">
+           <div className="hidden">
               <QualitativeBenefits />
            </div>
         </BrowserShell>
