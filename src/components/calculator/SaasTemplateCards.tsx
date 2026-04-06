@@ -41,18 +41,6 @@ const TEMPLATES: Template[] = [
     description: "$20/user + bandwidth",
     data: { saasPerUser: 20, selfHostedMonthly: 25, setupCost: 0 },
     color: "hover:border-blue-400 hover:text-blue-400",
-  },
-  {
-    name: "Spotify Duo/Family",
-    description: "$15-20/month",
-    data: { saasPerUser: 17, users: 1, selfHostedMonthly: 5, setupCost: 150 }, // Self-host: Navidrome on a Pi
-    color: "hover:border-emerald-400 hover:text-emerald-400",
-  },
-  {
-    name: "Netflix Premium",
-    description: "$23/month",
-    data: { saasPerUser: 23, users: 1, selfHostedMonthly: 10, setupCost: 300 }, // Self-host: Jellyfin + Storage
-    color: "hover:border-rose-400 hover:text-rose-400",
   }
 ];
 

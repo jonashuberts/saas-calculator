@@ -181,7 +181,7 @@ export default function CalculatorDashboard() {
              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500/50 to-transparent"></div>
              <CardContent className="p-5 flex items-center justify-between relative z-10">
                 <div className="space-y-1">
-                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Total Monthly Gap</p>
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Total Monthly Savings</p>
                   <p className="text-3xl font-bold tracking-tight text-white">
                     {formatCurrency(totalMonthlyGap)}
                   </p>
@@ -196,7 +196,7 @@ export default function CalculatorDashboard() {
              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-emerald-500/20"></div>
              <CardContent className="p-5 flex items-center justify-between relative z-10">
                 <div className="space-y-1">
-                  <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">Total 5-Yr Savings</p>
+                  <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">5-Yr Projected Savings</p>
                   <p className="text-3xl font-black text-emerald-400 tracking-tight drop-shadow-sm">
                     {formatCurrency(year5.savings)}
                   </p>
@@ -211,7 +211,7 @@ export default function CalculatorDashboard() {
              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500/50 to-transparent"></div>
              <CardContent className="p-5 flex items-center justify-between relative z-10">
                 <div className="space-y-1">
-                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Money Saved So Far</p>
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Historical Savings (To Date)</p>
                   <p className="text-3xl font-bold tracking-tight text-white">
                     {formatCurrency(pastSavings)}
                   </p>
@@ -252,11 +252,11 @@ export default function CalculatorDashboard() {
             <Table>
               <TableHeader className="bg-white/5 border-b border-white/10">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[300px] h-14 text-white/70">Service Name</TableHead>
-                  <TableHead className="text-right h-14 text-white/70">Monthly SaaS</TableHead>
-                  <TableHead className="text-right h-14 text-white/70">Monthly Self-Hosted</TableHead>
-                  <TableHead className="text-right h-14 text-emerald-400 font-semibold">Net Monthly Gap</TableHead>
-                  <TableHead className="text-right h-14 text-white/70 w-[100px] pr-6">Actions</TableHead>
+                  <TableHead className="w-[300px] h-14 text-white/70 font-semibold">Service / App</TableHead>
+                  <TableHead className="text-right h-14 text-rose-400/80 font-semibold">SaaS Cost (mo)</TableHead>
+                  <TableHead className="text-right h-14 text-emerald-400/80 font-semibold">Self-Hosted Cost (mo)</TableHead>
+                  <TableHead className="text-right h-14 text-emerald-400 font-bold">Monthly Savings</TableHead>
+                  <TableHead className="text-right h-14 text-white/70 w-[100px] pr-6">Manage</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

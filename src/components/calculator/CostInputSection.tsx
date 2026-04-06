@@ -57,8 +57,8 @@ export function CostInputSection({ subscription, onChange, onDelete, currency }:
                 type="number"
                 min="0"
                 step="0.01"
-                value={subscription.saasPerUser}
-                onChange={(e) => handleChange("saasPerUser", Number(e.target.value))}
+                value={subscription.saasPerUser || ""}
+                onChange={(e) => handleChange("saasPerUser", e.target.value === "" ? 0 : Number(e.target.value))}
                 className="bg-background/50 border-rose-500/20 focus-visible:ring-rose-500 h-9"
               />
             </div>
@@ -70,8 +70,8 @@ export function CostInputSection({ subscription, onChange, onDelete, currency }:
                 id={`users-${subscription.id}`}
                 type="number"
                 min="1"
-                value={subscription.users}
-                onChange={(e) => handleChange("users", Number(e.target.value))}
+                value={subscription.users || ""}
+                onChange={(e) => handleChange("users", e.target.value === "" ? 0 : Number(e.target.value))}
                 className="bg-background/50 border-rose-500/20 focus-visible:ring-rose-500 h-9"
               />
             </div>
@@ -119,8 +119,8 @@ export function CostInputSection({ subscription, onChange, onDelete, currency }:
                   type="number"
                   min="0"
                   step="0.01"
-                  value={subscription.selfHostedMonthly}
-                  onChange={(e) => handleChange("selfHostedMonthly", Number(e.target.value))}
+                  value={subscription.selfHostedMonthly || ""}
+                  onChange={(e) => handleChange("selfHostedMonthly", e.target.value === "" ? 0 : Number(e.target.value))}
                   className="bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500 h-9"
                 />
               </div>
@@ -148,8 +148,8 @@ export function CostInputSection({ subscription, onChange, onDelete, currency }:
                       min="0"
                       step="0.01"
                       placeholder={`E.g. ${currencySymbol}500 one-time`}
-                      value={subscription.setupCost}
-                      onChange={(e) => handleChange("setupCost", Number(e.target.value))}
+                      value={subscription.setupCost || ""}
+                      onChange={(e) => handleChange("setupCost", e.target.value === "" ? 0 : Number(e.target.value))}
                       className="bg-background/50 border-amber-500/20 focus-visible:ring-amber-500 h-9"
                     />
                   </div>
