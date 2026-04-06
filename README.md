@@ -57,6 +57,17 @@ Host your own tracker instantly for free:
 
 3. **View the Dashboard:** Navigate to [localhost:3000](http://localhost:3000)
 
+## 📸 Generating Custom Marketing Assets
+This repository uses Playwright to automatically synthesize high-fidelity, gradient-framed screenshots of the application whenever you modify its design. 
+
+To easily construct beautiful custom screenshots for the README:
+1. Ensure your local server is running (`npm run dev`)
+2. In a separate terminal tab, generate them locally by running:
+   ```bash
+   npm run capture
+   ```
+Playwright will silently slice the dashboard into perfectly padded `#shot-1`, `#shot-2`, and `#shot-3` frames and overwrite the images located in `public/screenshots/*.png`.
+
 ## 🛠️ Tech Stack
 - **[Next.js App Router](https://nextjs.org/)** — React framework
 - **[Tailwind CSS](https://tailwindcss.com/)** — Utility-first styling

@@ -67,7 +67,7 @@ export function SavingsVisualizations({ projections, subscriptions = [], currenc
     <div className="space-y-6">
       
       {/* Visual Insights Command Center */}
-      {!hideCommandCenter && (totalSetupCost > 0 || breakEvenProj) && (
+      {(!hideCommandCenter && totalSetupCost > 0) && (
         <Card className="border-emerald-500/20 bg-emerald-500/[0.02] shadow-xl overflow-hidden relative">
           <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 rounded-l-lg"></div>
           <CardContent className="p-6">
